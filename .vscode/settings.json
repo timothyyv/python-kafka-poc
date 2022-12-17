@@ -1,0 +1,15 @@
+{
+    "python.linting.pylintArgs": [
+        "--load-plugins",
+        "--disable=C0111",
+    ],
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        ".",
+        "-p",
+        "*test*.py"
+    ],
+    "python.testing.unittestEnabled": true,
+    "python.linting.pylintEnabled": true,
+}

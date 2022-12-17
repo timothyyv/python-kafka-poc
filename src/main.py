@@ -1,7 +1,8 @@
 from random import randint
 from typing import Set, Any
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from kafka import TopicPartition
+from dotenv import load_dotenv
 
 import uvicorn
 import aiokafka
@@ -10,6 +11,7 @@ import json
 import logging
 import os
 
+load_dotenv()
 app = FastAPI()
 
 # set up global variables
@@ -17,10 +19,11 @@ consumer_task = None
 consumer = None
 _state = 0
 
+
 # env variables
-KAFKA_TOPICS = os.getenv('KAFKA_TOPIC')
-KAFKA_CONSUMER_GROUP_PREFIX = os.getenv('KAFKA_CONSUMER_GROUP_PREFIX', 'group')
-KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092')
+KAFKA_TOPICS = os.environ.get('KAFKA_TOPICS')
+KAFKA_CONSUMER_GROUP_PREFIX = os.environ.get('KAFKA_CONSUMER_GROUP_PREFIX', 'group')
+KAFKA_BOOTSTRAP_SERVERS = os.environ.get('KAFKA_BOOTSTRAP_SERVERS', 'localhost:29092')
 
 # initialize logger
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
