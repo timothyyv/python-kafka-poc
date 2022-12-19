@@ -3,6 +3,7 @@ from typing import Set, Any
 from fastapi import FastAPI, Depends
 from kafka import TopicPartition
 from dotenv import load_dotenv
+from aggregator_functions import Aggregator
 
 import uvicorn
 import aiokafka
@@ -32,8 +33,10 @@ log = logging.getLogger(__name__)
 @app.on_event("startup")
 async def startup_event():
     log.info('Initializing API ...')
-    await init()
-    await consume()
+    agg = Aggregator()
+    agg.sum()
+    # await init()
+    # await consume()
 
 
 @app.on_event("shutdown")
@@ -54,7 +57,7 @@ async def state():
 # initialize the kafka consumer after server crash or on first start up
 async def init():
     # get event loop
-    loop = asyncio.get_event_loop()
+    # loop = asyncio.get_event_loop()
     global consumer
     # generate a randomized group id for 
     group_id = f'{KAFKA_CONSUMER_GROUP_PREFIX}-{randint(0, 10000)}'
