@@ -33,10 +33,9 @@ log = logging.getLogger(__name__)
 @app.on_event("startup")
 async def startup_event():
     log.info('Initializing API ...')
-    agg = Aggregator()
-    agg.sum()
-    # await init()
-    # await consume()
+
+    await init()
+    await consume()
 
 
 @app.on_event("shutdown")
@@ -60,7 +59,7 @@ async def init():
     # loop = asyncio.get_event_loop()
     global consumer
     # generate a randomized group id for 
-    group_id = f'{KAFKA_CONSUMER_GROUP_PREFIX}-{randint(0, 10000)}'
+    group_id = f'{KAFKA_CONSUMER_GROUP_PREFIX}-key'
     log.debug(f'Initializing KafkaConsumer for topic {KAFKA_TOPICS}, group_id {group_id}'
         f'and using bootstrap servers {KAFKA_BOOTSTRAP_SERVERS}')
     # set up the consumer
@@ -91,12 +90,12 @@ async def init():
             return
         
         log.debug(f'Found log_end_offset: {end_offset} seeking to {end_offset - 1}')
-        consumer.seek(topic_partition, end_offset - 1)
-        msg = await consumer.getone()
-        log.info(f'Initializing API with data from msg: {msg}')
+        # consumer.seek(topic_partition, end_offset - 1)
+        # msg = await consumer.getone()
+        # log.info(f'Initializing API with data from msg: {msg}')
 
         # update API state
-        _update_state(msg)
+        # _update_state(msg)
         return
 
 
@@ -112,10 +111,32 @@ async def send_consumer_message(consumer):
         # cosnume messages
         async for msg in consumer:
             log.info(f'Consumed msg: {msg}')
+            parsedMsg = json.loads(msg.value)
+            log.info(f'Parsed Msg: {parsedMsg}')
+
+            # check condition to redirect method
+            if parsedMsg['action'] == "sum":
+                agg = Aggregator()
+                await agg.sum(parsedMsg)
+            elif parsedMsg['action'] == "sum_if":
+                agg = Aggregator()
+                await agg.sum_if(parsedMsg)
+            elif parsedMsg['action'] == "count":
+                agg = Aggregator()
+                await agg.count(parsedMsg)
+            elif parsedMsg['action'] == "count_if":
+                agg = Aggregator()
+                await agg.count_if(parsedMsg)
+
+            # update application state
             _update_state(msg)
+        return
+    except BufferError:
+        log.warning("Consumer error")
+        await consumer.stop()
     finally:
         log.warning('Stopping consumer')
-        await consumer.stop()
+        
 
 
 def _update_state(message: Any) -> None:
