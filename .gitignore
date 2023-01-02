@@ -9,6 +9,7 @@ __pycache__/
 # database files
 *.db
 *.sqlite
+*.json
 
 # Distribution / packaging
 .Python

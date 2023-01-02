@@ -17,27 +17,30 @@ class Aggregator:
         sparkSession = SparkSession.builder.appName('sparkdf').getOrCreate()
         self.spark = sparkSession
     
-    async def sum(self, val) -> int:
+    def sum(self, val) -> int:
+        print(val, "THERE")
         df = self.spark.createDataFrame(Row(**x) for x in data)
         sf = df.filter(param_options(val["date_range"])).agg(F.sum(val["action_field"])).collect()[0][0]
 
-        await kafka_producer(sf, "sum_response")
+        return sf
+
+        # awakafka_producer(sf, "sum_response")
         
 
-    async def sum_if(self, val) -> int:
+    def sum_if(self, val) -> int:
         df = self.spark.createDataFrame(Row(**x) for x in data)
         sf = df.filter(param_options(val["date_range"]), val["filter_fields"]).agg(F.sum(val["action_field"])).collect()[0][0]
 
-        await kafka_producer(sf, "sum_if_response")
+        return sf
 
-    async def count(self, val) -> int:
+    def count(self, val) -> int:
         df = self.spark.createDataFrame(Row(**x) for x in data)
         sf = df.filter(param_options(val["date_range"])).agg(F.count(val["action_field"])).collect()[0][0]
 
-        await kafka_producer(sf, "count_response")
+        return sf
 
-    async def count_if(self, val) -> int:
+    def count_if(self, val) -> int:
         df = self.spark.createDataFrame(Row(**x) for x in data)
         sf = df.filter(param_options(val["date_range"]), val["filter_fields"]).agg(F.count(val["action_field"])).collect()[0][0]
 
-        await kafka_producer(sf, "count_if_response")
+        return sf
