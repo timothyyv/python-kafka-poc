@@ -10,6 +10,6 @@ def param_options(ranges: list, filters: list = None) -> str:
                 else:
                     terms += f"{key} IN ('{value}') AND "
         
-    terms += f" DATE BETWEEN '{ranges[0]}' AND '{ranges[1]}'"
+    terms += f" EntryDate BETWEEN '{ranges[0]}' AND '{ranges[1]}'"
 
     return terms
